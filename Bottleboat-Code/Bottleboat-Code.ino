@@ -1,6 +1,7 @@
 //BottleBoats - HMS F(l)ounder
 
 #include <Wire.h> //I2C Arduino Library
+#include <math.h>
 
 #define address 0x1E //0011110b, I2C 7bit address of HMC5883
 
@@ -36,14 +37,12 @@ void loop(){
     y = Wire.read()<<8; //Y msb
     y |= Wire.read(); //Y lsb
   }
-  
-  //Print out values of each axis
-  Serial.print("x: ");
-  Serial.print(x);
-  Serial.print("  y: ");
-  Serial.print(y);
-  Serial.print("  z: ");
-  Serial.println(z);
+
+    float heading = atan2(y, x);
+    if(heading < 0)
+      heading += 2 * M_PI;
+    Serial.print("heading:\t");
+    Serial.println(heading * 180/M_PI);
   
   delay(250);
 }
