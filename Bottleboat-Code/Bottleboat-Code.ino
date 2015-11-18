@@ -23,12 +23,20 @@ void setup(){
 }
 
 void loop(){
-  String RawRMC = GPSRMC();
+  String RawRMC = GPSRMC();     //Receive a string of the latest GPS Data
+  String GPSNorth;              //Create the GPSNorth Variable - for storing the real North Coordinates
+  String GPSWest;               //Create the GPSWest Variable - for storing the real West Coordinates
   
-    if (! RawRMC.equals("!RMC")) {
+    if (! RawRMC.equals("!RMC")) {      //Check that the received data is GPRMC as we want it
       Serial.println("Heading: ");
       Serial.println(CompReceive());
       Serial.println(RawRMC);
+
+      if (GPSReady(RawRMC) == true) {   //Check if the RMC data contains a valid GPS Fix
+        GPSNorth = CalcNorth(RawRMC);   //Set GPSNorth to the variable returned from the function which calculates the North coordinates from the RMC
+        GPSWest= CalcWest(RawRMC);      //Set GPSWest to the variable returned from the function which calculates the West coordinates from the RMC
+        Serial.println("WE HAVE A FIX");
+      }
     }
 }
 
@@ -90,3 +98,58 @@ double CompReceive() {
     delay(250);
 }
 
+boolean GPSReady(String GPRMC) {
+  char c;
+  char StatChar;
+  int j = 0;
+  boolean Status;
+  
+  for (int i = 0; i < GPRMC.length(); i++) {  //Loop through the entire GPRMC String
+    c = GPRMC.charAt(i);  //Set c to the character at that point in the GPRMC String  
+    if (c == ',') {       //Check whether the loop has arrived at a seperating comma
+      j++;                //Increment j counter
+    }
+    
+    if (j == 2) {            //Check if the loop has reached the comma before the GPS Status
+      StatChar = GPRMC.charAt(i+1); //Set character variable to the status character
+      break;              //Escape loop and go on to return
+    }
+  }
+
+  if (StatChar == 'V') {   //V means GPS value warning - no GPS
+    Status = false;       //Return that there are no valid GPS coordinates to use
+  } else {
+    Status = true;        //Return that there are valid GPS coordinates to use
+  }
+  return Status;          //Return the status of the GPS Coordinates
+}
+
+String CalcNorth(String GPRMC){
+  //
+}
+
+String CalcWest(String GPRMC){
+  //
+}
+
+/*
+ Example GPRMC
+ $GPRMC,225446,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68
+
+
+           225446       Time of fix 22:54:46 UTC
+           A            Navigation receiver warning A = OK, V = warning
+           4916.45,N    Latitude 49 deg. 16.45 min North
+           12311.12,W   Longitude 123 deg. 11.12 min West
+           000.5        Speed over ground, Knots
+           054.7        Course Made Good, True
+           191194       Date of fix  19 November 1994
+           020.3,E      Magnetic variation 20.3 deg East
+           *68          mandatory checksum
+           
+  
+  
+  Real GPRMC Example from Penbryn
+  
+  $GPRMC,125914.00,A,5225.08700,N,00403.86768,W,0.325,,181115,,,A*6E
+*/
