@@ -2,12 +2,16 @@
 
 #define GPSRX 10 //Constant for GPS Receiver Pin
 #define GPSTX 11 //Constant for GPS Transmitter Pin
+#define MOTOR 5  //Constant for Motor Control Pin
+#define SERVO 6  //Constant for Servo Control Pin
 #define address 0x1E //0011110b, I2C 7bit address of HMC5883
 
 #include <Wire.h> //I2C Arduino Library
 #include <math.h>
+#include <Servo.h>
 #include <SoftwareSerial.h> //SoftwareSerial Lib
 SoftwareSerial GPSSerial(GPSRX, GPSTX); // RX, TX
+Servo Rudder;
 
 void setup() {
   //Initialize Serial and I2C communications
@@ -20,6 +24,8 @@ void setup() {
   Wire.write(0x02); //select mode register
   Wire.write(0x00); //continuous measurement mode
   Wire.endTransmission();
+  Rudder.attach(SERVO); //Set up Rudder Servo
+  pinMode(MOTOR,OUTPUT); //Set up Motor output pin
 }
 
 void loop() {
@@ -124,6 +130,7 @@ boolean GPSReady(String GPRMC) {
 
 float CalcBearing(String GPRMC) {
   char c;
+  float Bearing = 0;
   String Lat = "";
   String Long = "";
   int j = 0;
@@ -138,18 +145,20 @@ float CalcBearing(String GPRMC) {
     if (j == 3) {            //Check if the loop has reached the comma before the GPS Latitude
       int k = i;
       while (GPRMC.charAt(k) != ',') {
-        Lat += GPRMC.charAt(k); //Set character variable to the status character
+        Lat += GPRMC.charAt(k); //Add character at point k to the entire latitude string
       }
     }
 
     if (j == 5) {            //Check if the loop has reached the comma before the GPS Longitude
       int k = i;
       while (GPRMC.charAt(k) != ',') {
-        Long += GPRMC.charAt(k); //Set character variable to the status character
+        Long += GPRMC.charAt(k); //Add character at point k to the entire longitude string
       }
-      break;              //Escape loop and go on to return
+      break;              //Escape loop and go on to bearing calculation
     }
   }
+
+  return(Bearing); //Return Bearing Value
 }
 
 /*
