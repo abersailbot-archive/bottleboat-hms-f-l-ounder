@@ -25,7 +25,7 @@ void setup() {
   Wire.write(0x00); //continuous measurement mode
   Wire.endTransmission();
   Rudder.attach(SERVO); //Set up Rudder Servo
-  pinMode(MOTOR,OUTPUT); //Set up Motor output pin
+  pinMode(MOTOR, OUTPUT); //Set up Motor output pin
 }
 
 void loop() {
@@ -158,66 +158,66 @@ float CalcBearing(String GPRMC) {
     }
   }
 
-  latitude = LatString.toFloat();
-  longitude = LongString.toFloat();
+  latitude = LatRawString.toFloat();
+  longitude = LongRawString.toFloat();
   Serial.println(latitude); //Temporary
   Serial.println(longitude); //Temporary
-  
-  return(Bearing); //Return Bearing Value
+
+  return (Bearing); //Return Bearing Value
 }
 
 /*
- * Converts the given arc minutes in the GPRMC into degrees. Works for both
- * longitude and latitude. It should be noted that due to arduino restrictions,
- * we are only able to have floats with 6-7 decimals of accuracy.
- * 
- * param float arcMinutes
- *    The arcminutes given by the GPSRMC to be converted
- *    
- * return float degrees
- *    The converted arcminutes is returned in degrees
- */
-float arcToDeg(float arcMinutes) {
+   Converts the given arc minutes in the GPRMC into degrees. Works for both
+   longitude and latitude. It should be noted that due to arduino restrictions,
+   we are only able to have floats with 6-7 decimals of accuracy.
+
+   param float arcMinutes
+      The arcminutes given by the GPSRMC to be converted
+
+   return float degrees
+      The converted arcminutes is returned in degrees
+*/
+float ArcToDeg(float ArcMinutes) {
   float degrees;
 
-  degrees = arcMinutes / 60; //Dividing by 60, as there are 60 arcMinutes for the earth
+  degrees = ArcMinutes / 60; //Dividing by 60, as there are 60 arcMinutes for the earth
   Serial.println(degrees, 5); //Println for testing purposes, prints up to 4 decimal places.
-  
+
   return degrees;
 }
 
 /*
- * Takes the current latitude and longitude supplied by the GPRMC and
- * uses it with the checkpoint data to find the bearing needed to reach that
- * destination.
- * 
- * param float latitude
- *    The current latitude from the GPRMC
- *    
- * param float longitude
- *    The current longitude from the GPRMC
- *    
- * returns float bearing
- *    The calculated bearing needed to reach the destination co-ordinates
- */
-float destinationBearing(float latitude, float longitude) {
+   Takes the current latitude and longitude supplied by the GPRMC and
+   uses it with the checkpoint data to find the bearing needed to reach that
+   destination.
+
+   param float latitude
+      The current latitude from the GPRMC
+
+   param float longitude
+      The current longitude from the GPRMC
+
+   returns float bearing
+      The calculated bearing needed to reach the destination co-ordinates
+*/
+float DestinationBearing(float latitude, float longitude) {
   float bearing, x, y;
-  float destLat, destLong; //Temporary destinations - TaMed benches
+  float DestLat, DestLong; //Temporary destinations - TaMed benches
 
-  destLat = 52.41769; //Temporary destination Latitude - TaMed benches
-  destLong = -4.06487; //Temporary destination Longitude - TaMed benches
-  
-  x = cos(destLat) * sin(destLong - longitude);
+  DestLat = 52.41769; //Temporary destination Latitude - TaMed benches
+  DestLong = -4.06487; //Temporary destination Longitude - TaMed benches
 
-  y = (cos(latitude) * sin(destLat)) - (sin(latitude) * cos(destLat) * cos(destLong - longitude));
+  x = cos(DestLat) * sin(DestLong - longitude);
 
-  bearing = atan2(x,y);
+  y = (cos(latitude) * sin(DestLat)) - (sin(latitude) * cos(DestLat) * cos(DestLong - longitude));
+
+  bearing = atan2(x, y);
 
   return bearing;
 }
 /*
- Example GPRMC
- $GPRMC,225446,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68
+  Example GPRMC
+  $GPRMC,225446,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68
 
 
            225446       Time of fix 22:54:46 UTC
@@ -228,11 +228,11 @@ float destinationBearing(float latitude, float longitude) {
            054.7        Course Made Good, True
            191194       Date of fix  19 November 1994
            020.3,E      Magnetic variation 20.3 deg East
-           *68          mandatory checksum
+            68          mandatory checksum
 
 
 
   Real GPRMC Example from Penbryn - if Penbryn was in Russia (Paul)
-  
+
   $GPRMC,125914.00,A,5225.08700,N,00403.86768,W,0.325,,181115,,,A*6E
 */
