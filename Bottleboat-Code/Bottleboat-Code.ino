@@ -162,17 +162,18 @@ float CalcBearing(String GPRMC) {
 }
 
 /*
- * Converts the given arc minutes in the GPSRMC into degrees. Works for both
- * longitude and latitude.
+ * Converts the given arc minutes in the GPRMC into degrees. Works for both
+ * longitude and latitude. It should be noted that due to arduino restrictions,
+ * we are only able to have floats with 6-7 decimals of accuracy.
  * 
- * param double arcMinutes
+ * param float arcMinutes
  *    The arcminutes given by the GPSRMC to be converted
  *    
- * return double degrees
+ * return float degrees
  *    The converted arcminutes is returned in degrees
  */
-double arcToDeg(double arcMinutes) {
-  double degrees;
+float arcToDeg(float arcMinutes) {
+  float degrees;
 
   degrees = arcMinutes / 60; //Dividing by 60, as there are 60 arcMinutes for the earth
   Serial.println(degrees, 5); //Println for testing purposes, prints up to 4 decimal places.
@@ -180,6 +181,35 @@ double arcToDeg(double arcMinutes) {
   return degrees;
 }
 
+/*
+ * Takes the current latitude and longitude supplied by the GPRMC and
+ * uses it with the checkpoint data to find the bearing needed to reach that
+ * destination.
+ * 
+ * param float latitude
+ *    The current latitude from the GPRMC
+ *    
+ * param float longitude
+ *    The current longitude from the GPRMC
+ *    
+ * returns float bearing
+ *    The calculated bearing needed to reach the destination co-ordinates
+ */
+float destinationBearing(float latitude, float longitude) {
+  float bearing, x, y;
+  float destLat, destLong;
+
+  destLat = 52.41812;
+  destLong = 40.06446;
+  
+  x = cos(destLat) * sin(destLong - longitude);
+
+  y = (cos(latitude) * sin(destLat)) - (sin(latitude) * cos(destLat) * cos(destLong - longitude));
+
+  bearing = atan2(x,y);
+
+  return bearing;
+}
 /*
  Example GPRMC
  $GPRMC,225446,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68
@@ -197,7 +227,7 @@ double arcToDeg(double arcMinutes) {
 
 
 
-  Real GPRMC Example from Penbryn
-
+  Real GPRMC Example from Penbryn - if Penbryn was in Russia (Paul)
+  
   $GPRMC,125914.00,A,5225.08700,N,00403.86768,W,0.325,,181115,,,A*6E
 */
