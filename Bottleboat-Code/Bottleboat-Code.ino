@@ -130,9 +130,9 @@ boolean GPSReady(String GPRMC) {
 
 float CalcBearing(String GPRMC) {
   char c;
-  float Bearing = 0;
-  String Lat = "";
-  String Long = "";
+  float Bearing, latitude, longitude; //Numeric values for bearing, latitude and longitude
+  String LatRawString = ""; //Holds the raw data from GPRMC for the latitude
+  String LongRawString = ""; //Holds the raw data from GPRMC for the longitude
   int j = 0;
   boolean Status;
 
@@ -145,18 +145,23 @@ float CalcBearing(String GPRMC) {
     if (j == 3) {            //Check if the loop has reached the comma before the GPS Latitude
       int k = i;
       while (GPRMC.charAt(k) != ',') {
-        Lat += GPRMC.charAt(k); //Add character at point k to the entire latitude string
+        LatRawString += GPRMC.charAt(k); //Add character at point k to the entire latitude string
       }
     }
 
     if (j == 5) {            //Check if the loop has reached the comma before the GPS Longitude
       int k = i;
       while (GPRMC.charAt(k) != ',') {
-        Long += GPRMC.charAt(k); //Add character at point k to the entire longitude string
+        LongRawString += GPRMC.charAt(k); //Add character at point k to the entire longitude string
       }
       break;              //Escape loop and go on to bearing calculation
     }
   }
+
+  latitude = LatString.toFloat();
+  longitude = LongString.toFloat();
+  Serial.println(latitude); //Temporary
+  Serial.println(longitude); //Temporary
   
   return(Bearing); //Return Bearing Value
 }
@@ -197,10 +202,10 @@ float arcToDeg(float arcMinutes) {
  */
 float destinationBearing(float latitude, float longitude) {
   float bearing, x, y;
-  float destLat, destLong;
+  float destLat, destLong; //Temporary destinations - TaMed benches
 
-  destLat = 52.41812;
-  destLong = 40.06446;
+  destLat = 52.41769; //Temporary destination Latitude - TaMed benches
+  destLong = -4.06487; //Temporary destination Longitude - TaMed benches
   
   x = cos(destLat) * sin(destLong - longitude);
 
