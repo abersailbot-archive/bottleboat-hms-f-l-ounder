@@ -24,8 +24,8 @@ void setup() {
 
 void loop() {
   String RawRMC = GPSRMC();     //Receive a string of the latest GPS Data
-  String GPSNorth;              //Create the GPSNorth Variable - for storing the real North Coordinates
-  String GPSWest;               //Create the GPSWest Variable - for storing the real West Coordinates
+  String Bearing;              //Create the GPSNorth Variable - for storing the real North Coordinates
+  //String GPSWest;               //Create the GPSWest Variable - for storing the real West Coordinates
 
   if (! RawRMC.equals("!RMC")) {      //Check that the received data is GPRMC as we want it
     Serial.println("Heading: ");
@@ -33,8 +33,7 @@ void loop() {
     Serial.println(RawRMC);
 
     if (GPSReady(RawRMC) == true) {   //Check if the RMC data contains a valid GPS Fix
-      //GPSNorth = CalcNorth(RawRMC);   //Set GPSNorth to the variable returned from the function which calculates the North coordinates from the RMC
-      //GPSWest = CalcWest(RawRMC);     //Set GPSWest to the variable returned from the function which calculates the West coordinates from the RMC
+      Bearing = CalcBearing(RawRMC);   //Set GPSNorth to the variable returned from the function which calculates the North coordinates from the RMC
     }
   }
 }
@@ -123,12 +122,41 @@ boolean GPSReady(String GPRMC) {
   return Status;          //Return the status of the GPS Coordinates
 }
 
-String CalcNorth(String GPRMC) {
-  //
-}
+String CalcBearing(String GPRMC) {
+  char c;
+  String Lat = "";
+  String Long = "";
+  int j = 0;
+  boolean Status;
 
-String CalcWest(String GPRMC) {
-  //
+  for (int i = 0; i < GPRMC.length(); i++) {  //Loop through the entire GPRMC String
+    c = GPRMC.charAt(i);  //Set c to the character at that point in the GPRMC String
+    if (c == ',') {       //Check whether the loop has arrived at a seperating comma
+      j++;                //Increment j counter
+    }
+
+    if (j == 3) {            //Check if the loop has reached the comma before the GPS Latitude
+      int k = i;
+      while (GPRMC.charAt(k) != ',') {
+        Lat += GPRMC.charAt(k); //Set character variable to the status character
+      }
+    }
+
+    if (j == 5) {            //Check if the loop has reached the comma before the GPS Longitude
+      int k = i;
+      while (GPRMC.charAt(k) != ',') {
+        Long = GPRMC.charAt(k); //Set character variable to the status character
+      }
+      break;              //Escape loop and go on to return
+    }
+  }
+
+  if (StatChar == 'V') {   //V means GPS value warning - no GPS
+    Status = false;       //Return that there are no valid GPS coordinates to use
+  } else {
+    Status = true;        //Return that there are valid GPS coordinates to use
+  }
+  return Status;          //Return the status of the GPS Coordinates
 }
 
 /*
