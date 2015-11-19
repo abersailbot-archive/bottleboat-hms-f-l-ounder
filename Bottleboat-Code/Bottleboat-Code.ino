@@ -150,13 +150,6 @@ String CalcBearing(String GPRMC) {
       break;              //Escape loop and go on to return
     }
   }
-
-  if (StatChar == 'V') {   //V means GPS value warning - no GPS
-    Status = false;       //Return that there are no valid GPS coordinates to use
-  } else {
-    Status = true;        //Return that there are valid GPS coordinates to use
-  }
-  return Status;          //Return the status of the GPS Coordinates
 }
 
 /*
