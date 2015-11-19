@@ -24,7 +24,7 @@ void setup() {
 
 void loop() {
   String RawRMC = GPSRMC();     //Receive a string of the latest GPS Data
-  String Bearing;              //Create the GPSNorth Variable - for storing the real North Coordinates
+  float Bearing;              //Create the GPSNorth Variable - for storing the real North Coordinates
   //String GPSWest;               //Create the GPSWest Variable - for storing the real West Coordinates
 
   if (! RawRMC.equals("!RMC")) {      //Check that the received data is GPRMC as we want it
@@ -122,7 +122,7 @@ boolean GPSReady(String GPRMC) {
   return Status;          //Return the status of the GPS Coordinates
 }
 
-String CalcBearing(String GPRMC) {
+float CalcBearing(String GPRMC) {
   char c;
   String Lat = "";
   String Long = "";
@@ -145,7 +145,7 @@ String CalcBearing(String GPRMC) {
     if (j == 5) {            //Check if the loop has reached the comma before the GPS Longitude
       int k = i;
       while (GPRMC.charAt(k) != ',') {
-        Long = GPRMC.charAt(k); //Set character variable to the status character
+        Long += GPRMC.charAt(k); //Set character variable to the status character
       }
       break;              //Escape loop and go on to return
     }
