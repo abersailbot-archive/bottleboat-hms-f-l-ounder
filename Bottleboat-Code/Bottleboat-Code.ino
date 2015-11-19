@@ -157,8 +157,27 @@ float CalcBearing(String GPRMC) {
       break;              //Escape loop and go on to bearing calculation
     }
   }
-
+  
   return(Bearing); //Return Bearing Value
+}
+
+/*
+ * Converts the given arc minutes in the GPSRMC into degrees. Works for both
+ * longitude and latitude.
+ * 
+ * param double arcMinutes
+ *    The arcminutes given by the GPSRMC to be converted
+ *    
+ * return double degrees
+ *    The converted arcminutes is returned in degrees
+ */
+double arcToDeg(double arcMinutes) {
+  double degrees;
+
+  degrees = arcMinutes / 60; //Dividing by 60, as there are 60 arcMinutes for the earth
+  Serial.println(degrees, 5); //Println for testing purposes, prints up to 4 decimal places.
+  
+  return degrees;
 }
 
 /*
