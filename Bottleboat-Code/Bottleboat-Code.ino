@@ -131,10 +131,10 @@ boolean GPSReady(String GPRMC) {
 float CalcBearing(String GPRMC) {
   char c;
   float Bearing, latitude, longitude; //Numeric values for bearing, latitude and longitude
-  String LatRawString = ""; //Holds the raw data from GPRMC for the latitude
-  String LongRawString = ""; //Holds the raw data from GPRMC for the longitude
+  float LatArcMin, LongArcMin; //Holds the arc minutes for latitude and longitude
+  String LatRawString = "", LongRawString = ""; //Holds the raw data from GPRMC for the latitude and longitude
+  String LatString = "", LongString = ""; //Holds the degrees lat / long in string format to be changed
   int j = 0;
-  boolean Status;
 
   for (int i = 0; i < GPRMC.length(); i++) {  //Loop through the entire GPRMC String
     c = GPRMC.charAt(i);  //Set c to the character at that point in the GPRMC String
@@ -158,10 +158,26 @@ float CalcBearing(String GPRMC) {
     }
   }
 
-  latitude = LatRawString.toFloat();
-  longitude = LongRawString.toFloat();
-  Serial.println(latitude); //Temporary
-  Serial.println(longitude); //Temporary
+  //Converting the Raw data into Degrees and arcMinutes - Latitude
+  for (int i = 0 ; i < 2 ; i ++) { //Loops twice, as the first 2 characters are the degrees according to the standard
+    LatString += LatRawString.charAt(i);
+    LatRawString.setCharAt(i, '0'); //Sets the character we just read to 0, so it is parsable later on for ArcMinutes
+  }
+  
+  latitude = LatString.toFloat();     //Converts the characters we just pulled into a float
+  LatArcMin = LatRawString.toFloat(); //Converts the rest of the characters, including the 0's we added into a float
+
+  //Converting the Raw data into Degrees and arcMinutes - Longitude
+  for (int i = 0 ; i < 3 ; i++) { //Loops thrice, as the first 3 characters are the degrees according to the standard
+    LongString += LongRawString.charAt(i);
+    LatRawString.setCharAt(i, '0'); //Sets the character we just read to 0, so it is parsable later on for ArcMinutes
+  }
+  longitude = LongString.toFloat();     //Converts the characters we just pulled into a float
+  LongArcMin = LongRawString.toFloat(); //Converts the rest of the characters, including the 0's we added into a float
+
+  
+  Serial.println(latitude); //Temporary debugging
+  Serial.println(longitude); //Temporary debugging
 
   return (Bearing); //Return Bearing Value
 }
