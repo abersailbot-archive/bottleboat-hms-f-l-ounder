@@ -13,6 +13,8 @@
 SoftwareSerial GPSSerial(GPSRX, GPSTX); // RX, TX
 Servo Rudder;
 
+const char RudderDegs[6] = {0,9,18,27,36,45};
+
 void setup() {
   //Initialize Serial and I2C communications
   Serial.begin(57600);
@@ -31,6 +33,7 @@ void setup() {
 void loop() {
   String RawRMC = GPSRMC();     //Receive a string of the latest GPS Data
   float Bearing;              //Create the GPSNorth Variable - for storing the real North Coordinates
+  char Direction;
   //String GPSWest;               //Create the GPSWest Variable - for storing the real West Coordinates
 
   if (! RawRMC.equals("!RMC")) {      //Check that the received data is GPRMC as we want it
@@ -40,6 +43,8 @@ void loop() {
 
     if (GPSReady(RawRMC) == true) {   //Check if the RMC data contains a valid GPS Fix
       Bearing = CalcBearing(RawRMC);   //Set GPSNorth to the variable returned from the function which calculates the North coordinates from the RMC
+      //Serial.println(Bearing);
+      RudderCont(Bearing, Direction);
     }
   }
 }
@@ -230,6 +235,22 @@ float DestinationBearing(float latitude, float longitude) {
   bearing = atan2(x, y);
 
   return bearing;
+}
+
+void RudderCont(float Bear, char Dir) {
+char RudderPos = 0; //A Position from 0 - 5
+  if (Bear <36) {
+    RudderPos = 1; //Check the bearing between the boat and the waypoint and set the position to position 1 if it's a small difference
+    } else if (Bear <72) {
+      RudderPos = 2; //Check the bearing between the boat and the waypoint and set the position to position 2 if it's a slightly larger difference
+      } else if (Bear <108) {
+        RudderPos = 3; //Check the bearing between the boat and the waypoint and set the position to position 3 if it's a medium difference
+        } else if (Bear <144) {
+          RudderPos = 4; //Check the bearing between the boat and the waypoint and set the position to position 4 if it's a large difference
+          } else if (Bear <=180) {
+            RudderPos = 5; //Check the bearing between the boat and the waypoint and set the position to position 5 if it's a massive difference
+          }
+  Rudder.write(RudderDegs[RudderPos]);  //Write the Rudder Position value (in an array of degrees positions for the servo) to the Servo
 }
 /*
   Example GPRMC
